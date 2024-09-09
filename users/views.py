@@ -17,32 +17,34 @@ bot_token = settings.BOT_TOKEN
 class TelegramLoginView(APIView):
 
     def post(self, request):
-        user_data = request.data
-        token = bot_token
+        # Extract init data from the Authorization header
+        auth_header = request.headers.get('Authorization', '')
+        auth_type, auth_data = auth_header.split(' ') if auth_header else ('', '')
 
-        # Verify the authenticity of the Telegram data
-        if not verify_telegram_auth(user_data, token):
+        if auth_type != 'tma' or not auth_data:
+            return Response({"error": "Unauthorized: Invalid Authorization header"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        token = "your-telegram-bot-token"  # Replace with your bot token
+
+        # Verify the init data with the bot token
+        is_valid, parsed_data = verify_telegram_auth(auth_data, token)
+
+        if not is_valid:
             return Response({"error": "Invalid authentication data"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Extract user information from Telegram
-        telegram_id = user_data.get('id')
-        first_name = user_data.get('first_name')
-        last_name = user_data.get('last_name', '')
-        username = user_data.get('username', None)
-        is_premium = user_data.get('is_premium', False)
-        photo_url = user_data.get('photo_url', None)
-        language_code = user_data.get('language_code', None)
+        # Extract user information from the parsed data
+        telegram_id = parsed_data['id']
+        first_name = parsed_data.get('first_name', '')
+        last_name = parsed_data.get('last_name', '')
+        username = parsed_data.get('username', None)
 
-        # Check if user exists or create a new one (implicit registration)
+        # Now, proceed with creating or logging in the user as usual
         user, created = TelegramUser.objects.get_or_create(
             telegram_id=telegram_id,
             defaults={
                 'first_name': first_name,
                 'last_name': last_name,
                 'username': username,
-                'is_premium': is_premium,
-                'photo_url': photo_url,
-                'language_code': language_code,
                 'auth_date': now(),
             }
         )
@@ -52,9 +54,6 @@ class TelegramLoginView(APIView):
             user.first_name = first_name
             user.last_name = last_name
             user.username = username
-            user.is_premium = is_premium
-            user.photo_url = photo_url
-            user.language_code = language_code
             user.auth_date = now()
             user.save()
 
