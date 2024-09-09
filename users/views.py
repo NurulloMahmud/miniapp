@@ -9,13 +9,16 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .utils import verify_telegram_auth  # Telegram hash verification
 from .serializers import TelegramUserSerializer
 from .permissions import IsSuperUser
+from django.conf import settings
+
+bot_token = settings.BOT_TOKEN
 
 
 class TelegramLoginView(APIView):
 
     def post(self, request):
         user_data = request.data
-        token = "your-telegram-bot-token"  # Replace with your actual bot token
+        token = bot_token
 
         # Verify the authenticity of the Telegram data
         if not verify_telegram_auth(user_data, token):

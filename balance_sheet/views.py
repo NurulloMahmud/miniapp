@@ -19,6 +19,11 @@ class IncomeCategoryViewSet(ModelViewSet):
     def get_queryset(self):
         queryset = IncomeCategory.objects.filter(user=self.request.user)
         return queryset
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['user'] = self.request.user
+        return context
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -32,6 +37,11 @@ class ExpenseCategoryViewSet(ModelViewSet):
     def get_queryset(self):
         queryset = ExpenseCategory.objects.filter(user=self.request.user)
         return queryset
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['user'] = self.request.user
+        return context
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
