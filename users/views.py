@@ -1,11 +1,15 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from django.utils.timezone import now
 from .models import TelegramUser
-from .serializers import CustomTokenObtainPairSerializer
+from rest_framework import generics
 from rest_framework_simplejwt.tokens import RefreshToken
 from .utils import verify_telegram_auth  # Telegram hash verification
+from .serializers import TelegramUserSerializer
+from .permissions import IsSuperUser
+
 
 class TelegramLoginView(APIView):
 
@@ -63,3 +67,10 @@ class TelegramLoginView(APIView):
         }
 
         return Response(token_data, status=status.HTTP_200_OK)
+
+
+class TelegramUserListView(generics.ListAPIView):
+    queryset = TelegramUser.objects.all()
+    serializer_class = TelegramUserSerializer
+    permission_classes = [IsAuthenticated, IsSuperUser]
+

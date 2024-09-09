@@ -18,3 +18,9 @@ class TelegramUser(AbstractBaseUser):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.telegram_id})"
+
+    class Meta:
+        verbose_name = "Telegram User"
+        verbose_name_plural = "Telegram Users"
+        db_table = "telegram_users"
+

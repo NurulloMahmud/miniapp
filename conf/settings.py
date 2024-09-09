@@ -30,6 +30,7 @@ INSTALLED_APPS = [
 
     # custom
     'users',
+    'balance_sheet',
 
     # third party
     'rest_framework',
